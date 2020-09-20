@@ -5,6 +5,7 @@ import com.github.robtimus.filesystems.ftp.FTPSEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.util.FileCopyUtils;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
@@ -45,8 +46,8 @@ public class FileIODemoFtpFileSystemSsl {
 
     @Test
     public void writeFile() throws Exception {
-        Files.write(ftp.getPath("test.upload.txt"), LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME).getBytes());
-        String file = new String(Files.readAllBytes(ftp.getPath("test.upload.txt")));
+        Files.write(ftp.getPath("test1.remote.txt"), LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME).getBytes());
+        String file = new String(Files.readAllBytes(ftp.getPath("test1.remote.txt")));
         System.out.println("File is: " + file);
     }
 
@@ -117,5 +118,36 @@ public class FileIODemoFtpFileSystemSsl {
     @Test
     public void makeNestedDirectories() throws Exception {
         Files.createDirectories(ftp.getPath("dir6/dir7/dir8"));
+    }
+
+    @Test
+    public void copyNestedDirectories() throws Exception {
+        copyFolder(ftp.getPath("dir1"), downloadDir.resolve("dir1.download"));
+        copyFolder(downloadDir.resolve("dir1.download"), ftp.getPath("dir1.upload"));
+    }
+
+    @Test
+    public void downloadNestedDirectories() throws Exception {
+        copyFolder(ftp.getPath("dir1"), downloadDir.resolve("dir1.download"));
+    }
+
+    public void copyFolder(Path source, Path target, CopyOption... options)
+            throws IOException {
+        Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
+
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                    throws IOException {
+                Files.createDirectories(target.resolve(source.relativize(dir).toString()));
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                    throws IOException {
+                Files.copy(file, target.resolve(source.relativize(file).toString()), options);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 }

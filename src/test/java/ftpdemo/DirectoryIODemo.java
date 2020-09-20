@@ -1,7 +1,6 @@
 package ftpdemo;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.junit.BeforeClass;
@@ -9,7 +8,6 @@ import org.junit.Test;
 import org.springframework.integration.ftp.session.DefaultFtpSessionFactory;
 import org.springframework.integration.ftp.session.FtpRemoteFileTemplate;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
